@@ -68,7 +68,6 @@ fn receive_event(mut stream: TcpStream) {
                         post_alert(alert_message);
                     }
                     _ => {
-                        
                         println!("{:#?}", body);
                         println!("Event: {}", event);
                     }
