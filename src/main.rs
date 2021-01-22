@@ -2,7 +2,6 @@ use std::net::{TcpListener, TcpStream};
 use std::io::prelude::*;
 use std::collections::HashMap;
 use dotenv;
-use std::time::Duration;
 
 
 fn main() {
@@ -14,6 +13,7 @@ fn main() {
     let listener = TcpListener::bind(bind_string).expect("TcpListener could not bind to value provided by HOST var");
 
     for stream in listener.incoming().flatten() {
+        stream.set_ttl(5).expect("Set ttl call failed");
         receive_event(stream);
     }
 
@@ -85,16 +85,9 @@ fn post_alert(msg: String) {
     map.insert("type", "donation");
     map.insert("message", &msg);
     map.insert("duration", "5000");
-
-    let time_out = Duration::from_secs(3);
     
-    let client = reqwest::blocking::Client::builder().timeout(time_out).build().unwrap();
-    let res = client.post("https://streamlabs.com/api/v1.0/alerts")
+    let client = reqwest::blocking::Client::new();
+    let _res = client.post("https://streamlabs.com/api/v1.0/alerts")
         .json(&map)
         .send();
-
-    if res.unwrap().status().is_success() {
-        println!("Success");
-    }
-
 }
